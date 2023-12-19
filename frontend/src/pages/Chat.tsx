@@ -27,9 +27,14 @@ const Chat = () => {
     }
     const newMessage: Message = { role: "user", content };
     setChatMessages((prev) => [...prev, newMessage]);
-    const chatData = await sendChatRequest(content);
-    setChatMessages([...chatData.chats]);
-    //
+  
+    try {
+      const chatData = await sendChatRequest(content);
+      setChatMessages((prev) => [...prev, ...chatData.chats]);
+    } catch (error) {
+      console.error("Error sending chat request:", error);
+      // Handle error appropriately, e.g., show a message to the user
+    }
   };
   const handleDeleteChats = async () => {
     try {
@@ -161,10 +166,12 @@ const Chat = () => {
             scrollBehavior: "smooth",
           }}
         >
-          {chatMessages.map((chat, index) => (
-            //@ts-ignore
-            <ChatItem content={chat.content} role={chat.role} key={index} />
+          {chatMessages && chatMessages.length > 0 && chatMessages.map((chat, index) => (
+            chat && 'content' in chat ? (
+                <ChatItem content={chat.content} role={chat.role} key={index} />
+              ) : null
           ))}
+
         </Box>
         <div
           style={{
